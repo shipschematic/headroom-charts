@@ -40,8 +40,10 @@ headroom-charts/
     ├── golden/frame_*.txt        # captured from the original script at 778c6ab
     ├── golden/frame_*.v2.txt     # superseded forward by #11
     ├── golden/frame_*.v3.txt     # superseded forward by #12
+    ├── golden/frame_*.v4.txt     # superseded forward by #13
     ├── fidelity_gate.py          # resolves the authorised baseline, compares frames
     ├── capture_baseline.py       # records a superseding baseline against an issue
+    ├── test_cost_caveat.py       # the cost figure is caveated, not recalculated
     ├── test_fidelity_gate.py     # the gate itself, including that it bites
     ├── test_kpi_scoping.py       # window sums and lifetime anchors, separately labelled
     ├── test_parity.py            # palette, constants, entry points, live loop
@@ -108,8 +110,10 @@ headroom-charts = "headroom_charts.cli:main"
 Found while packaging and left unfixed at the time, because the requirement was that
 the packaged command match the script. That reason expired with #10: rendering now has
 a decision path, so these stay open as ordinary issues rather than as frozen
-behaviour. None of them is fixed below; the one gap that was not on this list — the
-window never said which events it summed — is now closed by #11.
+behaviour. All six are still true of the shipped frame. Three further gaps — the window
+never said which events it summed, a window sum could fall while the log grew, and the
+cost figure carried none of `headroom`'s pricing caveat — were found while reconciling
+the screen against `headroom` on 2026-10-28 and are closed by #11, #12 and #13.
 
 1. **The events table always clips.** The footer is allocated 8 rows but 5 data rows
    plus header and separator need 10, so **3 of 5 events are ever shown** — measured

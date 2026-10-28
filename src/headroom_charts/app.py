@@ -123,7 +123,7 @@ def generate_dashboard():
         f"[bold {HARVEST}]${total_cost:.4f}[/]\n[dim {IVORY}]Cost Avoided (window)[/]\n[dim {IVORY}]lifetime ${life_cost:.4f}[/]",
         f"[bold {HARVEST}]{len(events)}[/]\n[dim {IVORY}]Compressions (window)[/]\n[dim {IVORY}]lifetime {life_count}[/]"
     )
-    layout["kpi"].update(Panel(kpi_table, box=box.ROUNDED, border_style=RUST, style=ESPRESSO))
+    layout["kpi"].update(Panel(kpi_table, title=f"[dim {IVORY}]cost figures are list-price ceilings · real saving likely lower[/]", box=box.ROUNDED, border_style=RUST, style=ESPRESSO))
 
     # --- 3. Vertical Chart ---
     chart_panel = Panel(

@@ -53,7 +53,7 @@ Four zones in a `rich` `Layout`, repainted once per second on the alternate scre
 | Zone | Rows | Contents |
 |---|---|---|
 | header | 3 | `HEADROOM COMPRESSION DASHBOARD`, ivory-on-maroon, RUST border |
-| kpi | 5 | window `Tokens Saved` · `Cost Avoided` · `Compressions`, each with a `lifetime` anchor |
+| kpi | 5 | window `Tokens Saved` · `Cost Avoided` · `Compressions`, each with a `lifetime` anchor, under a panel title caveating the cost |
 | chart | ratio 1 | `Live Tokens Saved Per Call`, HARVEST border, bars over an axis |
 | footer | 8 | `Latest Events` table, last 5 as `Time │ Model │ Saved`, newest first |
 
@@ -79,6 +79,13 @@ scope is now spelled out on both lines. The anchor exists for a specific failure
 window sum: when a large event rolls off the left edge, every top-line figure *falls*
 while the log has only grown, which reads as data loss unless something on screen
 moves the other way.
+
+The KPI panel title carries `cost figures are list-price ceilings · real saving likely
+lower` (#13). `headroom` prints the same warning under its own cost summary — some
+events predate cache-aware pricing or report no cache breakdown — and before this the
+dashboard showed the derived dollar figure with none of that hedging. It is a label,
+not a recalculation: §5 still keeps cost estimation out of scope, and the printed sum
+is exactly the stored `cost_usd` values.
 
 ### Reconciling with `headroom`'s own summary
 
@@ -141,7 +148,9 @@ The gate for every change to what the dashboard draws:
    Two logs are gated: the 6-event one, and a 25-event one whose window is full — a
    log shorter than the window draws identically at any `MAX_BARS` at or above its
    length, so the short frame alone cannot see a window change. The `verbatim` entries
-   were captured from the original script at `778c6ab`; `#11` superseded both.
+   were captured from the original script at `778c6ab`; the authorised frame advances
+   by decision — `v2` from #11, `v3` from #12, `v4` from #13 — and every superseded
+   frame stays in the repo.
 4. Changing a constant in §3 — a hex, `MAX_BARS`, `CHART_HEIGHT`, a zone size — fails
    that golden test, because no decision authorises it.
 5. A change a human has accepted lands by **supersession**: run

@@ -38,9 +38,9 @@ def render_frame(log_path: pathlib.Path) -> str:
     return _render(console, log_path)
 
 
-def render_text(log_path: pathlib.Path) -> str:
+def render_text(log_path: pathlib.Path, width: int = 100) -> str:
     """The same frame without colour or cursor codes, for reading what it says."""
-    console = Console(force_terminal=False, no_color=True, width=100, height=30)
+    console = Console(force_terminal=False, no_color=True, width=width, height=30)
     return _render(console, log_path)
 
 
