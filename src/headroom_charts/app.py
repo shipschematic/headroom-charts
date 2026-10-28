@@ -22,9 +22,9 @@ MAX_BARS = 20 # How many recent events to show in the chart
 CHART_HEIGHT = 10 # Height of the vertical bars
 
 def get_events():
-    # Returns the plotted window and the true event count, so the dashboard can say
-    # which slice of the log it is summarising. The old last-100 cap never changed the
-    # window (20 < 100) and under-reported the total, so the count is now over the file.
+    # Every event on disk. The caller takes the last MAX_BARS for the window and keeps
+    # the full list for the lifetime anchor, so the screen can show both scopes. The old
+    # last-100 cap never changed the plotted window (20 < 100) and under-reported totals.
     events = []
     if os.path.exists(SAVINGS_FILE):
         with open(SAVINGS_FILE, "r") as f:
@@ -33,7 +33,7 @@ def get_events():
                     events.append(json.loads(line))
                 except json.JSONDecodeError:
                     continue
-    return events[-MAX_BARS:], len(events) # Window for the chart, count for provenance
+    return events
 
 def window_note(events, total):
     if not events:
@@ -89,7 +89,8 @@ def make_vertical_chart(events):
     return chart
 
 def generate_dashboard():
-    events, total = get_events()
+    all_events = get_events()
+    events = all_events[-MAX_BARS:]
     
     layout = Layout()
     layout.split_column(
@@ -101,6 +102,11 @@ def generate_dashboard():
 
     total_saved = sum(e.get("saved", 0) for e in events)
     total_cost = sum(e.get("cost_usd", 0.0) for e in events)
+    # The window can shrink when a large event rolls off the left edge. These are the
+    # figures that only ever grow, so a fall on the top line is visibly a window effect.
+    life_saved = sum(e.get("saved", 0) for e in all_events)
+    life_cost = sum(e.get("cost_usd", 0.0) for e in all_events)
+    life_count = len(all_events)
     
     # --- 1. Header ---
     header_text = Text(" HEADROOM COMPRESSION DASHBOARD", style=f"bold {IVORY} on {MAROON}")
@@ -113,16 +119,16 @@ def generate_dashboard():
     kpi_table.add_column(justify="center")
     
     kpi_table.add_row(
-        f"[bold {HARVEST}]{total_saved:,}[/]\n[dim {IVORY}]Tokens Saved (Recent)[/]",
-        f"[bold {HARVEST}]${total_cost:.4f}[/]\n[dim {IVORY}]Cost Avoided[/]",
-        f"[bold {HARVEST}]{len(events)}[/]\n[dim {IVORY}]Compressions[/]"
+        f"[bold {HARVEST}]{total_saved:,}[/]\n[dim {IVORY}]Tokens Saved (window)[/]\n[dim {IVORY}]lifetime {life_saved:,}[/]",
+        f"[bold {HARVEST}]${total_cost:.4f}[/]\n[dim {IVORY}]Cost Avoided (window)[/]\n[dim {IVORY}]lifetime ${life_cost:.4f}[/]",
+        f"[bold {HARVEST}]{len(events)}[/]\n[dim {IVORY}]Compressions (window)[/]\n[dim {IVORY}]lifetime {life_count}[/]"
     )
     layout["kpi"].update(Panel(kpi_table, box=box.ROUNDED, border_style=RUST, style=ESPRESSO))
 
     # --- 3. Vertical Chart ---
     chart_panel = Panel(
         Align.center(make_vertical_chart(events), vertical="middle"),
-        title=f"[bold {IVORY}]Live Tokens Saved Per Call[/] [dim {IVORY}]{window_note(events, total)}[/]",
+        title=f"[bold {IVORY}]Live Tokens Saved Per Call[/] [dim {IVORY}]{window_note(events, life_count)}[/]",
         box=box.ROUNDED,
         border_style=HARVEST,
         style=ESPRESSO

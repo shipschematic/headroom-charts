@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib
 import json
 import pathlib
 
@@ -45,6 +46,14 @@ def test_unauthorised_window_change_fails_the_gate(monkeypatch: pytest.MonkeyPat
     monkeypatch.setattr(app, "MAX_BARS", 8)
     with pytest.raises(AssertionError, match="no decision authorises"):
         fidelity_gate.assert_frame_passes_gate()
+
+
+def test_supersession_numbering_steps_one_version(tmp_path: pathlib.Path) -> None:
+    """A superseded name must not stack: frame.v2.txt becomes frame.v3.txt, not v2.v2."""
+    capture = importlib.import_module("capture_baseline")
+    assert capture.next_filename("frame_100x30.txt", tmp_path) == "frame_100x30.v2.txt"
+    (tmp_path / "frame_100x30.v2.txt").write_text("x")
+    assert capture.next_filename("frame_100x30.v2.txt", tmp_path) == "frame_100x30.v3.txt"
 
 
 def test_supersession_without_a_decision_is_rejected(tmp_path: pathlib.Path) -> None:

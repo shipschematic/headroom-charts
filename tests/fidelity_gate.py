@@ -35,6 +35,16 @@ def load_manifest(path: pathlib.Path = MANIFEST) -> dict:
 def render_frame(log_path: pathlib.Path) -> str:
     """generate_dashboard against one events log, at 100x30 truecolour."""
     console = Console(force_terminal=True, color_system="truecolor", width=100, height=30)
+    return _render(console, log_path)
+
+
+def render_text(log_path: pathlib.Path) -> str:
+    """The same frame without colour or cursor codes, for reading what it says."""
+    console = Console(force_terminal=False, no_color=True, width=100, height=30)
+    return _render(console, log_path)
+
+
+def _render(console: Console, log_path: pathlib.Path) -> str:
     original = app.SAVINGS_FILE
     app.SAVINGS_FILE = str(log_path)
     try:

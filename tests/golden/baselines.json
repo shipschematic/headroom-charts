@@ -1,7 +1,7 @@
 {
   "authorized": [
-    "frame_100x30.v2.txt",
-    "frame_long_100x30.v2.txt"
+    "frame_100x30.v3.txt",
+    "frame_long_100x30.v3.txt"
   ],
   "baselines": [
     {
@@ -41,6 +41,28 @@
       "authorized_by": "#11",
       "date": "2026-10-28",
       "note": "Current render at 100x30 truecolour, authorised by #11."
+    },
+    {
+      "file": "frame_100x30.v3.txt",
+      "fixture": "events.jsonl",
+      "status": "superseding",
+      "captured_from": "778c6ab",
+      "recorded": "2026-10-28",
+      "supersedes": "frame_100x30.v2.txt",
+      "authorized_by": "#12",
+      "date": "2026-10-28",
+      "note": "Current render at 100x30 truecolour, authorised by #12."
+    },
+    {
+      "file": "frame_long_100x30.v3.txt",
+      "fixture": "events_long.jsonl",
+      "status": "superseding",
+      "captured_from": "778c6ab",
+      "recorded": "2026-10-28",
+      "supersedes": "frame_long_100x30.v2.txt",
+      "authorized_by": "#12",
+      "date": "2026-10-28",
+      "note": "Current render at 100x30 truecolour, authorised by #12."
     }
   ]
 }

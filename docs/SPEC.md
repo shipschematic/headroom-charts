@@ -36,13 +36,14 @@ schema version `v: 2`. A real line:
 
 Tolerated input:
 
-- File absent → `get_events()` returns `([], 0)` and the chart prints `Waiting for data...`.
+- File absent → `get_events()` returns `[]` and the chart prints `Waiting for data...`.
 - Malformed line → `json.JSONDecodeError` is caught and the line skipped.
 - Missing field → `.get()` default of `0`, `0.0` or `"unknown"`.
-- The whole file is parsed; the last `MAX_BARS = 20` events are plotted and the total
-  is reported as window provenance. The earlier last-100-lines cap changed nothing
-  about the window — 20 is already inside 100 — and under-reported the total, so it
-  went with #11. The per-repaint whole-file read is still open as #9.
+- The whole file is parsed; the last `MAX_BARS = 20` events are plotted and summed as
+  the window, and the full list feeds the lifetime anchor and the window provenance.
+  The earlier last-100-lines cap changed nothing about the window — 20 is already
+  inside 100 — and under-reported the total, so it went with #11. The per-repaint
+  whole-file read is still open as #9.
 
 ## 3. Interface
 
@@ -52,7 +53,7 @@ Four zones in a `rich` `Layout`, repainted once per second on the alternate scre
 | Zone | Rows | Contents |
 |---|---|---|
 | header | 3 | `HEADROOM COMPRESSION DASHBOARD`, ivory-on-maroon, RUST border |
-| kpi | 5 | `Tokens Saved (Recent)` · `Cost Avoided` · `Compressions` |
+| kpi | 5 | window `Tokens Saved` · `Cost Avoided` · `Compressions`, each with a `lifetime` anchor |
 | chart | ratio 1 | `Live Tokens Saved Per Call`, HARVEST border, bars over an axis |
 | footer | 8 | `Latest Events` table, last 5 as `Time │ Model │ Saved`, newest first |
 
@@ -71,23 +72,30 @@ Chart, exactly as implemented:
   `no events yet` with no log. Added by #11; it is the only place a reader learns
   which events the numbers cover.
 
-KPI figures are window sums, not lifetime: total `saved`, total `cost_usd` and event
-count over the same ≤20 events the chart plots.
+Each KPI is two numbers. The top line is the **window** sum — `saved`, `cost_usd` and
+event count over the same ≤20 events the chart plots. Under it sits a `lifetime`
+anchor summed over the whole log. The original's `(Recent)` label is gone because the
+scope is now spelled out on both lines. The anchor exists for a specific failure of the
+window sum: when a large event rolls off the left edge, every top-line figure *falls*
+while the log has only grown, which reads as data loss unless something on screen
+moves the other way.
 
 ### Reconciling with `headroom`'s own summary
 
-`headroom` prints lifetime totals; this screen prints the window. On a real 37-event
-log the two read as:
+`headroom` prints lifetime totals; the top KPI line prints the window. On a real
+37-event log the two read as:
 
 ```
-headroom    saved 112,580 / 1,062,752 tokens   $0.3377   37 calls
-dashboard    saved  74,514                     $0.2235   20 compressions
+headroom     saved 112,580 / 1,062,752 tokens   $0.3377   37 calls
+dashboard    saved  74,514  (window)            $0.2235   20 compressions (window)
+             saved 112,580  (lifetime)          $0.3377   37 (lifetime)
 ```
 
-Nothing is wrong: the dashboard omits the 17 oldest events, worth 38,066 tokens and
-$0.1142. The 20-event figure is exactly the last 20 lines of the same file. `headroom`
-divides by total prompt tokens, which the dashboard never reads (`before` is
-unconsumed — see #6), so the 10.6% ratio has no equivalent on screen.
+The lifetime line is now the same figure `headroom` prints, so the two screens
+reconcile without a spreadsheet. The window line omits the 17 oldest events, worth
+38,066 tokens and $0.1142. `headroom` divides by total prompt tokens, which this
+dashboard never reads (`before` is unconsumed — see #6), so the 10.6% ratio still has
+no equivalent on screen.
 
 Palette — 24-bit hex, from the original HTML mockup:
 

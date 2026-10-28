@@ -39,9 +39,11 @@ headroom-charts/
     ├── golden/baselines.json     # which frame is authorised, and by which issue
     ├── golden/frame_*.txt        # captured from the original script at 778c6ab
     ├── golden/frame_*.v2.txt     # superseded forward by #11
+    ├── golden/frame_*.v3.txt     # superseded forward by #12
     ├── fidelity_gate.py          # resolves the authorised baseline, compares frames
     ├── capture_baseline.py       # records a superseding baseline against an issue
     ├── test_fidelity_gate.py     # the gate itself, including that it bites
+    ├── test_kpi_scoping.py       # window sums and lifetime anchors, separately labelled
     ├── test_parity.py            # palette, constants, entry points, live loop
     └── test_window_provenance.py # the screen says which events it sums
 ```

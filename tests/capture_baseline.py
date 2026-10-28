@@ -13,14 +13,18 @@ from __future__ import annotations
 
 import datetime
 import json
+import pathlib
+import re
 import sys
 
 import fidelity_gate as gate
 
 
-def next_filename(current: str) -> str:
-    stem = current.removesuffix(".txt")
-    existing = [int(p.stem.rsplit(".v", 1)[1]) for p in gate.MANIFEST.parent.glob(f"{stem}.v*.txt")]
+def next_filename(current: str, golden_dir: pathlib.Path | None = None) -> str:
+    """`frame.txt` and `frame.v2.txt` both step up to the next unused `vN`."""
+    directory = golden_dir or gate.MANIFEST.parent
+    stem = re.sub(r"\.v\d+$", "", current.removesuffix(".txt"))
+    existing = [int(p.stem.rsplit(".v", 1)[1]) for p in directory.glob(f"{stem}.v*.txt")]
     return f"{stem}.v{max(existing, default=1) + 1}.txt"
 
 
