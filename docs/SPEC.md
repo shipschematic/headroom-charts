@@ -92,8 +92,9 @@ loop catches and passes.
 
 ## 5. Non-goals
 
-- **Any change to rendering, layout sizes, geometry or palette.** Packaging is a
-  distribution change, not a redesign.
+- **Any change to rendering, layout sizes, geometry or palette without a recorded
+  decision.** Packaging was a distribution change, not a redesign, and the verbatim
+  frame is still the baseline. A deliberate change is now landable — see §6.
 - Reading any file other than the one path above.
 - Writing, rotating or backfilling the events log.
 - Cost estimation — `cost_usd` is displayed as given.
@@ -101,16 +102,27 @@ loop catches and passes.
 
 ## 6. Fidelity acceptance
 
-The gate for every future packaging change:
+The gate for every change to what the dashboard draws:
 
 1. `python headroom-charts.py` and the installed `headroom-charts` command emit
    **identical bytes** for the same terminal size and the same events file.
 2. Both exit `0` on `Ctrl-C`.
-3. A rendered frame at 100×30 against the test fixture equals
-   [`tests/golden/frame_100x30.txt`](../tests/golden/frame_100x30.txt), which was
-   captured from the original script.
-4. Changing any constant in §3 — a hex, `MAX_BARS`, `CHART_HEIGHT`, a zone size —
-   fails that golden test rather than passing review.
+3. A rendered frame at 100×30 against the test fixture equals the **authorised
+   baseline** named in [`tests/golden/baselines.json`](../tests/golden/baselines.json).
+   Until something supersedes it, that is
+   [`tests/golden/frame_100x30.txt`](../tests/golden/frame_100x30.txt), captured from
+   the original script.
+4. Changing a constant in §3 — a hex, `MAX_BARS`, `CHART_HEIGHT`, a zone size — fails
+   that golden test, because no decision authorises it.
+5. A change a human has accepted lands by **supersession**: capture the new frame as
+   `frame_100x30.vN.txt`, add a `baselines.json` entry carrying `authorized_by` (the
+   issue that decided it) and `date`, and point `authorized` at it. The superseded
+   frame stays in the repo, so the verbatim behaviour remains attributable.
 
-Known defects in the original are preserved deliberately and tracked separately; see
-docs/ARCHITECTURE.md §5.
+An entry that supersedes the verbatim baseline without naming a decision is rejected
+by the gate rather than trusted, and a change with no new baseline still fails rule 4.
+The gate itself is [`tests/fidelity_gate.py`](../tests/fidelity_gate.py); it exists
+because rules 3–4 as first written made the known defects in §5 of
+docs/ARCHITECTURE.md permanently unlandable.
+
+Known defects in the original are tracked separately; see docs/ARCHITECTURE.md §5.

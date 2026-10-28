@@ -62,6 +62,16 @@ and from mypy, in `pyproject.toml`. The original has long lines and an unused
 formatting is how behaviour changes sneak in. Style debt is quarantined to one
 commented exemption rather than spread through edits.
 
+**Supersession, once a decision exists.** Those three rules made the frame frozen,
+which was right while packaging was the only job and wrong afterwards: it left the
+acknowledged defects in §5 with no way to land, because any fix fails the golden test
+by construction. [`tests/fidelity_gate.py`](../tests/fidelity_gate.py) now resolves the
+baseline from [`tests/golden/baselines.json`](../tests/golden/baselines.json), and a
+change to the drawing is accepted by recording a superseding frame with
+`authorized_by` and `date`. Absent that record, the verbatim frame is still the gate
+and an unauthorised hex or size change still fails. The promise moves from "this never
+changes" to "this only changes by decision".
+
 Confirmed in a pty against an identical events file at 100×30: the two entry points
 emitted **28,891 bytes each, byte-for-byte equal**, and both exited `0`.
 

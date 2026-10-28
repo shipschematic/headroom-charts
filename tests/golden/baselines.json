@@ -1,0 +1,12 @@
+{
+  "authorized": "frame_100x30.txt",
+  "baselines": [
+    {
+      "file": "frame_100x30.txt",
+      "status": "verbatim",
+      "captured_from": "778c6ab",
+      "recorded": "2026-10-28",
+      "note": "Captured by running the original single-file script at 100x30 truecolour against tests/data/events.jsonl."
+    }
+  ]
+}
