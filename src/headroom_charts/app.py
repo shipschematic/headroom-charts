@@ -1,7 +1,7 @@
 import json
 import os
-import time
 from collections import deque
+from headroom_charts.keyboard import QuitKey
 from rich.live import Live
 from rich.table import Table
 from rich.panel import Panel
@@ -165,10 +165,15 @@ def generate_dashboard():
 
 def run():
     # screen=True makes it take over the terminal like htop/Sleev
-    with Live(generate_dashboard(), refresh_per_second=1, screen=True) as live:
+    # `q` closes it like htop does too; the wait is the one-second tick, so a quit
+    # lands immediately instead of on the next repaint. Ctrl-C still works.
+    with QuitKey() as keys, Live(
+        generate_dashboard(), refresh_per_second=1, screen=True
+    ) as live:
         try:
             while True:
-                time.sleep(1)
+                if keys.wait(1.0):
+                    break
                 live.update(generate_dashboard())
         except KeyboardInterrupt:
             pass

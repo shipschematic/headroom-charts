@@ -126,6 +126,7 @@ def test_the_gate_refuses_a_baseline_set_that_cannot_see_the_window(tmp_path: pa
     with pytest.raises(fidelity_gate.GateError, match="full window"):
         fidelity_gate.authorized_baselines(write_manifest(tmp_path, manifest))
 
+
 def test_the_gate_refuses_two_verbatim_frames_for_one_fixture(tmp_path: pathlib.Path) -> None:
     """One verbatim frame per fixture is the whole point of calling it verbatim."""
     manifest = {
