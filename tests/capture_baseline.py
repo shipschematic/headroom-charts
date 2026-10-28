@@ -15,6 +15,7 @@ import datetime
 import json
 import pathlib
 import re
+import subprocess
 import sys
 
 import fidelity_gate as gate
@@ -28,10 +29,13 @@ def next_filename(current: str, golden_dir: pathlib.Path | None = None) -> str:
     return f"{stem}.v{max(existing, default=1) + 1}.txt"
 
 
-def main(issue_ref: str, today: str | None = None) -> int:
+def main(issue_ref: str) -> int:
     if not issue_ref.startswith("#"):
         raise SystemExit('usage: capture_baseline.py <issue-ref> — e.g. "#11"')
-    today = today or datetime.date.today().isoformat()
+    today = datetime.date.today().isoformat()
+    rendered_from = subprocess.run(
+        ["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True, check=True
+    ).stdout.strip()
 
     manifest = gate.load_manifest()
     captured: list[str] = []
@@ -43,13 +47,14 @@ def main(issue_ref: str, today: str | None = None) -> int:
         (gate.MANIFEST.parent / new_name).write_text(frame)
         manifest["baselines"].append(
             {
-                **{k: v for k, v in entry.items() if k != "note"},
                 "file": new_name,
+                "fixture": entry["fixture"],
                 "status": "superseding",
                 "supersedes": name,
                 "authorized_by": issue_ref,
                 "date": today,
-                "note": f"Current render at 100x30 truecolour, authorised by {issue_ref}.",
+                "rendered_from": rendered_from,
+                "note": f"Rendered by app.py at {rendered_from}, authorised by {issue_ref}.",
             }
         )
         captured.append(new_name)
@@ -61,4 +66,6 @@ def main(issue_ref: str, today: str | None = None) -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main(*sys.argv[1:]))
+    if len(sys.argv) < 2:
+        raise SystemExit('usage: capture_baseline.py <issue-ref> — e.g. "#11"')
+    sys.exit(main(sys.argv[1]))

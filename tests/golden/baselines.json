@@ -24,67 +24,61 @@
       "file": "frame_100x30.v2.txt",
       "fixture": "events.jsonl",
       "status": "superseding",
-      "captured_from": "778c6ab",
-      "recorded": "2026-10-28",
       "supersedes": "frame_100x30.txt",
       "authorized_by": "#11",
       "date": "2026-10-28",
-      "note": "Current render at 100x30 truecolour, authorised by #11."
+      "rendered_from": "f6e9acc",
+      "note": "Rendered by app.py at f6e9acc, authorised by #11."
     },
     {
       "file": "frame_long_100x30.v2.txt",
       "fixture": "events_long.jsonl",
       "status": "superseding",
-      "captured_from": "778c6ab",
-      "recorded": "2026-10-28",
       "supersedes": "frame_long_100x30.txt",
       "authorized_by": "#11",
       "date": "2026-10-28",
-      "note": "Current render at 100x30 truecolour, authorised by #11."
+      "rendered_from": "f6e9acc",
+      "note": "Rendered by app.py at f6e9acc, authorised by #11."
     },
     {
       "file": "frame_100x30.v3.txt",
       "fixture": "events.jsonl",
       "status": "superseding",
-      "captured_from": "778c6ab",
-      "recorded": "2026-10-28",
       "supersedes": "frame_100x30.v2.txt",
       "authorized_by": "#12",
       "date": "2026-10-28",
-      "note": "Current render at 100x30 truecolour, authorised by #12."
+      "rendered_from": "23cdda6",
+      "note": "Rendered by app.py at 23cdda6, authorised by #12."
     },
     {
       "file": "frame_long_100x30.v3.txt",
       "fixture": "events_long.jsonl",
       "status": "superseding",
-      "captured_from": "778c6ab",
-      "recorded": "2026-10-28",
       "supersedes": "frame_long_100x30.v2.txt",
       "authorized_by": "#12",
       "date": "2026-10-28",
-      "note": "Current render at 100x30 truecolour, authorised by #12."
+      "rendered_from": "23cdda6",
+      "note": "Rendered by app.py at 23cdda6, authorised by #12."
     },
     {
       "file": "frame_100x30.v4.txt",
       "fixture": "events.jsonl",
       "status": "superseding",
-      "captured_from": "778c6ab",
-      "recorded": "2026-10-28",
       "supersedes": "frame_100x30.v3.txt",
       "authorized_by": "#13",
       "date": "2026-10-28",
-      "note": "Current render at 100x30 truecolour, authorised by #13."
+      "rendered_from": "28c47e0",
+      "note": "Rendered by app.py at 28c47e0, authorised by #13."
     },
     {
       "file": "frame_long_100x30.v4.txt",
       "fixture": "events_long.jsonl",
       "status": "superseding",
-      "captured_from": "778c6ab",
-      "recorded": "2026-10-28",
       "supersedes": "frame_long_100x30.v3.txt",
       "authorized_by": "#13",
       "date": "2026-10-28",
-      "note": "Current render at 100x30 truecolour, authorised by #13."
+      "rendered_from": "28c47e0",
+      "note": "Rendered by app.py at 28c47e0, authorised by #13."
     }
   ]
 }
