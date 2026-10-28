@@ -6,7 +6,6 @@ import importlib.util
 import pathlib
 import time
 
-import fidelity_gate
 import pytest
 from rich.console import Console
 
@@ -26,10 +25,6 @@ def render() -> str:
 @pytest.fixture
 def fixture_log(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(app, "SAVINGS_FILE", FIXTURE)
-
-
-def test_frame_is_byte_identical_to_the_authorized_baseline(fixture_log: None) -> None:
-    assert render() == fidelity_gate.authorized_baseline()["path"].read_text()
 
 
 def test_palette_constants_are_unchanged() -> None:

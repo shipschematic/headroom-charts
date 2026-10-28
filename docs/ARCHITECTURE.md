@@ -30,16 +30,23 @@ headroom-charts/
 ├── pyproject.toml
 ├── src/headroom_charts/
 │   ├── __init__.py               # __version__
-│   ├── app.py                    # THE ORIGINAL SCRIPT, verbatim
+│   ├── app.py                    # THE ORIGINAL SCRIPT — verbatim until superseded
 │   ├── cli.py                    # main() -> app.run()
 │   └── __main__.py               # python -m headroom_charts
 └── tests/
-    ├── data/events.jsonl         # fixture log
-    ├── golden/frame_100x30.txt   # frame captured from the original script
-    └── test_parity.py
+    ├── data/events.jsonl         # 6-event fixture: below the window
+    ├── data/events_long.jsonl    # 25-event fixture: window full, so its size is visible
+    ├── golden/baselines.json     # which frame is authorised, and by which issue
+    ├── golden/frame_*.txt        # captured from the original script at 778c6ab
+    ├── golden/frame_*.v2.txt     # superseded forward by #11
+    ├── fidelity_gate.py          # resolves the authorised baseline, compares frames
+    ├── capture_baseline.py       # records a superseding baseline against an issue
+    ├── test_fidelity_gate.py     # the gate itself, including that it bites
+    ├── test_parity.py            # palette, constants, entry points, live loop
+    └── test_window_provenance.py # the screen says which events it sums
 ```
 
-Four files of substance, and `app.py` is the only one that contains program logic.
+Four files of substance in `src/`, and `app.py` is the only one that contains program logic.
 
 ## 3. Parity policy
 
@@ -94,11 +101,13 @@ headroom-charts = "headroom_charts.cli:main"
 `[project.scripts]` is the line that turns the wheel into a command, and the reason
 `pipx install` gives you a working `headroom-charts` binary.
 
-## 5. Defects in the original, preserved on purpose
+## 5. Defects in the original
 
-These were found while packaging and **deliberately not fixed**, because the
-requirement was that the packaged command match the script. Each is an open issue;
-none is visible in the parity tests, which is the point.
+Found while packaging and left unfixed at the time, because the requirement was that
+the packaged command match the script. That reason expired with #10: rendering now has
+a decision path, so these stay open as ordinary issues rather than as frozen
+behaviour. None of them is fixed below; the one gap that was not on this list — the
+window never said which events it summed — is now closed by #11.
 
 1. **The events table always clips.** The footer is allocated 8 rows but 5 data rows
    plus header and separator need 10, so **3 of 5 events are ever shown** — measured

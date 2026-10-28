@@ -22,16 +22,28 @@ MAX_BARS = 20 # How many recent events to show in the chart
 CHART_HEIGHT = 10 # Height of the vertical bars
 
 def get_events():
+    # Returns the plotted window and the true event count, so the dashboard can say
+    # which slice of the log it is summarising. The old last-100 cap never changed the
+    # window (20 < 100) and under-reported the total, so the count is now over the file.
     events = []
     if os.path.exists(SAVINGS_FILE):
         with open(SAVINGS_FILE, "r") as f:
-            # Get the last 100 events just in case
-            for line in f.readlines()[-100:]:
+            for line in f:
                 try:
                     events.append(json.loads(line))
                 except json.JSONDecodeError:
                     continue
-    return events[-MAX_BARS:] # Return only the recent ones for the chart
+    return events[-MAX_BARS:], len(events) # Window for the chart, count for provenance
+
+def window_note(events, total):
+    if not events:
+        return "no events yet"
+    first = events[0].get("ts", "")[11:16]
+    last = events[-1].get("ts", "")[11:16]
+    span = f" · {first}-{last}" if first and last else ""
+    if total > len(events):
+        return f"last {len(events)} of {total}{span}"
+    return f"{total} events{span}"
 
 def make_vertical_chart(events):
     if not events:
@@ -77,7 +89,7 @@ def make_vertical_chart(events):
     return chart
 
 def generate_dashboard():
-    events = get_events()
+    events, total = get_events()
     
     layout = Layout()
     layout.split_column(
@@ -110,7 +122,7 @@ def generate_dashboard():
     # --- 3. Vertical Chart ---
     chart_panel = Panel(
         Align.center(make_vertical_chart(events), vertical="middle"),
-        title=f"[bold {IVORY}]Live Tokens Saved Per Call[/]",
+        title=f"[bold {IVORY}]Live Tokens Saved Per Call[/] [dim {IVORY}]{window_note(events, total)}[/]",
         box=box.ROUNDED,
         border_style=HARVEST,
         style=ESPRESSO

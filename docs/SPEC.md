@@ -36,11 +36,13 @@ schema version `v: 2`. A real line:
 
 Tolerated input:
 
-- File absent → `get_events()` returns `[]` and the chart prints `Waiting for data...`.
+- File absent → `get_events()` returns `([], 0)` and the chart prints `Waiting for data...`.
 - Malformed line → `json.JSONDecodeError` is caught and the line skipped.
 - Missing field → `.get()` default of `0`, `0.0` or `"unknown"`.
-- Only the **last 100 lines** of the file are considered, then trimmed to the last
-  20 for plotting.
+- The whole file is parsed; the last `MAX_BARS = 20` events are plotted and the total
+  is reported as window provenance. The earlier last-100-lines cap changed nothing
+  about the window — 20 is already inside 100 — and under-reported the total, so it
+  went with #11. The per-repaint whole-file read is still open as #9.
 
 ## 3. Interface
 
@@ -64,9 +66,28 @@ Chart, exactly as implemented:
 - A filled cell is `██ `, an empty cell is three spaces.
 - Y-axis gutter is `{value:>6} ┤ `; baseline is `       └` + `───` per bar.
 - X labels are minutes; above 15 events only every third bar is labelled.
+- The chart title carries **window provenance** — `last 20 of 25 · 20:35-22:48` when
+  the log is longer than the window, `6 events · 09:00-09:05` when it is not, and
+  `no events yet` with no log. Added by #11; it is the only place a reader learns
+  which events the numbers cover.
 
 KPI figures are window sums, not lifetime: total `saved`, total `cost_usd` and event
 count over the same ≤20 events the chart plots.
+
+### Reconciling with `headroom`'s own summary
+
+`headroom` prints lifetime totals; this screen prints the window. On a real 37-event
+log the two read as:
+
+```
+headroom    saved 112,580 / 1,062,752 tokens   $0.3377   37 calls
+dashboard    saved  74,514                     $0.2235   20 compressions
+```
+
+Nothing is wrong: the dashboard omits the 17 oldest events, worth 38,066 tokens and
+$0.1142. The 20-event figure is exactly the last 20 lines of the same file. `headroom`
+divides by total prompt tokens, which the dashboard never reads (`before` is
+unconsumed — see #6), so the 10.6% ratio has no equivalent on screen.
 
 Palette — 24-bit hex, from the original HTML mockup:
 
@@ -107,17 +128,19 @@ The gate for every change to what the dashboard draws:
 1. `python headroom-charts.py` and the installed `headroom-charts` command emit
    **identical bytes** for the same terminal size and the same events file.
 2. Both exit `0` on `Ctrl-C`.
-3. A rendered frame at 100×30 against the test fixture equals the **authorised
+3. A rendered frame at 100×30 against each gated events log equals the **authorised
    baseline** named in [`tests/golden/baselines.json`](../tests/golden/baselines.json).
-   Until something supersedes it, that is
-   [`tests/golden/frame_100x30.txt`](../tests/golden/frame_100x30.txt), captured from
-   the original script.
+   Two logs are gated: the 6-event one, and a 25-event one whose window is full — a
+   log shorter than the window draws identically at any `MAX_BARS` at or above its
+   length, so the short frame alone cannot see a window change. The `verbatim` entries
+   were captured from the original script at `778c6ab`; `#11` superseded both.
 4. Changing a constant in §3 — a hex, `MAX_BARS`, `CHART_HEIGHT`, a zone size — fails
    that golden test, because no decision authorises it.
-5. A change a human has accepted lands by **supersession**: capture the new frame as
-   `frame_100x30.vN.txt`, add a `baselines.json` entry carrying `authorized_by` (the
-   issue that decided it) and `date`, and point `authorized` at it. The superseded
-   frame stays in the repo, so the verbatim behaviour remains attributable.
+5. A change a human has accepted lands by **supersession**: run
+   `uv run python tests/capture_baseline.py "#<issue>"`, which renders the current
+   frame for each gated log, writes it as `frame_<...>.vN.txt`, and records
+   `authorized_by` and `date`. The superseded frame stays in the repo, so the verbatim
+   behaviour remains attributable.
 
 An entry that supersedes the verbatim baseline without naming a decision is rejected
 by the gate rather than trusted, and a change with no new baseline still fails rule 4.
