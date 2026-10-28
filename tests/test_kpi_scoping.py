@@ -56,3 +56,25 @@ def test_a_log_shorter_than_the_window_anchors_at_the_same_total() -> None:
     frame = fidelity_gate.render_text(SHORT_LOG)
     assert "18,900" in frame
     assert "lifetime 18,900" in frame
+
+
+def test_lifetime_counts_use_the_same_separator_as_tokens(tmp_path: pathlib.Path) -> None:
+    log = tmp_path / "savings_events.jsonl"
+    log.write_text(fidelity_gate.event_lines(1001))
+    frame = fidelity_gate.render_text(log)
+    assert "lifetime 1,001,000" in frame
+    assert "lifetime 1,001" in frame
+
+
+def test_the_three_line_kpi_row_fits_a_short_terminal() -> None:
+    """#12 claims no new rows: a 24-row terminal must still show every figure."""
+    frame = fidelity_gate.render_text(LONG_LOG, height=24)
+    for text in (
+        "23,000",
+        "Tokens Saved (window)",
+        "lifetime 58,000",
+        "Cost Avoided (window)",
+        "Compressions (window)",
+        "lifetime 25",
+    ):
+        assert text in frame, f"{text!r} missing at 24 rows"

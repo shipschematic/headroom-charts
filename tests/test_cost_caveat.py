@@ -32,7 +32,6 @@ def test_the_caveat_does_not_push_the_kpi_row_apart() -> None:
     """#8 already clips the footer; this must not add a second clip on the KPI row."""
     for width in (100, 80):
         frame = fidelity_gate.render_text(LONG_LOG, width=width)
-        lines = frame.splitlines()
-        assert max(len(line) for line in lines) <= width
-        assert "23,000" in frame, f"window token figure lost at {width} cols"
-        assert "lifetime 58,000" in frame, f"anchor lost at {width} cols"
+        assert max(len(line) for line in frame.splitlines()) <= width
+        for text in ("23,000", "$0.2300", "lifetime 58,000", "lifetime $0.5800", "lifetime 25"):
+            assert text in frame, f"{text!r} lost at {width} cols"

@@ -70,7 +70,9 @@ Chart, exactly as implemented:
 - The chart title carries **window provenance** — `last 20 of 25 · 20:35-22:48` when
   the log is longer than the window, `6 events · 09:00-09:05` when it is not, and
   `no events yet` with no log. Added by #11; it is the only place a reader learns
-  which events the numbers cover.
+  which events the numbers cover. When the window straddles midnight each end also
+  carries its day (`10-27 23:05-10-28 00:40`): a bare `23:05-00:40` cannot be read as
+  95 minutes rather than 25 hours, and the dashboard runs unattended overnight.
 
 Each KPI is two numbers. The top line is the **window** sum — `saved`, `cost_usd` and
 event count over the same ≤20 events the chart plots. Under it sits a `lifetime`

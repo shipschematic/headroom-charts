@@ -83,8 +83,17 @@ change to the drawing is accepted by recording a superseding frame with
 and an unauthorised hex or size change still fails. The promise moves from "this never
 changes" to "this only changes by decision".
 
-Confirmed in a pty against an identical events file at 100×30: the two entry points
-emitted **28,891 bytes each, byte-for-byte equal**, and both exited `0`.
+`authorized_by` is a free-text string, so the gate cannot prove a decision happened — it
+only proves one is *claimed*. The control is the diff: `capture_baseline.py` adds a
+manifest entry and a new file under `tests/golden/`, and both are visible to a human
+reviewer. A frame change whose manifest line cites nothing real is the thing review is
+for, not the thing the resolver catches.
+
+Confirmed again in a pty after #11–#13: the root script and the `headroom-charts`
+console command, run against the same events file at 100×30 truecolour, emitted
+**18,473 bytes each, byte-for-byte equal**, and both exited `0`. The absolute length
+depends on how many repaints land before the interrupt, so the assertion worth keeping
+is that the two streams are identical to each other, not that either has a fixed size.
 
 ## 4. pyproject.toml
 
@@ -110,10 +119,12 @@ headroom-charts = "headroom_charts.cli:main"
 Found while packaging and left unfixed at the time, because the requirement was that
 the packaged command match the script. That reason expired with #10: rendering now has
 a decision path, so these stay open as ordinary issues rather than as frozen
-behaviour. All six are still true of the shipped frame. Three further gaps — the window
-never said which events it summed, a window sum could fall while the log grew, and the
-cost figure carried none of `headroom`'s pricing caveat — were found while reconciling
-the screen against `headroom` on 2026-10-28 and are closed by #11, #12 and #13.
+behaviour. Five of the six are still exactly as recorded; defect 3 changed shape with
+#11 and is rewritten below rather than left as a false quote. Three further gaps — the
+window never said which events it summed, a window sum could fall while the log grew,
+and the cost figure carried none of `headroom`'s pricing caveat — were found while
+reconciling the screen against `headroom` on 2026-10-28 and are closed by #11, #12
+and #13.
 
 1. **The events table always clips.** The footer is allocated 8 rows but 5 data rows
    plus header and separator need 10, so **3 of 5 events are ever shown** — measured
@@ -121,9 +132,11 @@ the screen against `headroom` on 2026-10-28 and are closed by #11, #12 and #13.
 2. **The x-axis can be pushed off-screen.** At 24 rows the chart's baseline and minute
    labels are clipped away entirely (`axis drawn = False`), leaving bars with no time
    reference. Issue #8.
-3. **Whole-file read every second.** `f.readlines()[-100:]` loads the entire log into
-   memory to keep the last 100 lines, once per repaint. Correct, but cost grows with
-   file size, and `100` is unrelated to `MAX_BARS = 20`. Issue #9.
+3. **Whole-file read and parse every second.** The log is read top to bottom and every
+   line becomes a dict once per repaint. Correct, but cost grows with file size — and
+   since #11 removed the last-100 cap, the retained list is the whole log rather than
+   100 lines, because the lifetime anchor needs every event. Still an ordinary issue,
+   not a frozen one. Issue #9.
 4. **Low savings render as no bar at all.** `int((val / max_val) * 10)` truncates, so
    any event under 5% of the window peak disappears. Issue #9.
 5. **Nothing is configurable.** Path, `MAX_BARS`, `CHART_HEIGHT` and the 1s interval

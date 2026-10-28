@@ -38,8 +38,13 @@ def get_events():
 def window_note(events, total):
     if not events:
         return "no events yet"
-    first = events[0].get("ts", "")[11:16]
-    last = events[-1].get("ts", "")[11:16]
+    first_ts = events[0].get("ts", "")
+    last_ts = events[-1].get("ts", "")
+    first, last = first_ts[11:16], last_ts[11:16]
+    # A window that runs past midnight reads "23:05-00:40": 95 minutes or 24h95m, and
+    # the bare clock cannot tell you which. Naming each end's day settles it.
+    if first_ts[:10] != last_ts[:10]:
+        first, last = f"{first_ts[5:10]} {first}", f"{last_ts[5:10]} {last}"
     span = f" · {first}-{last}" if first and last else ""
     if total > len(events):
         return f"last {len(events)} of {total}{span}"
@@ -121,7 +126,7 @@ def generate_dashboard():
     kpi_table.add_row(
         f"[bold {HARVEST}]{total_saved:,}[/]\n[dim {IVORY}]Tokens Saved (window)[/]\n[dim {IVORY}]lifetime {life_saved:,}[/]",
         f"[bold {HARVEST}]${total_cost:.4f}[/]\n[dim {IVORY}]Cost Avoided (window)[/]\n[dim {IVORY}]lifetime ${life_cost:.4f}[/]",
-        f"[bold {HARVEST}]{len(events)}[/]\n[dim {IVORY}]Compressions (window)[/]\n[dim {IVORY}]lifetime {life_count}[/]"
+        f"[bold {HARVEST}]{len(events)}[/]\n[dim {IVORY}]Compressions (window)[/]\n[dim {IVORY}]lifetime {life_count:,}[/]"
     )
     layout["kpi"].update(Panel(kpi_table, title=f"[dim {IVORY}]cost figures are list-price ceilings · real saving likely lower[/]", box=box.ROUNDED, border_style=RUST, style=ESPRESSO))
 
