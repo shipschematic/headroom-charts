@@ -1,7 +1,6 @@
 # headroom-charts
 
-Live terminal dashboard for [Headroom](https://github.com/shipblueprint/headroom)
-context-compression savings.
+Live terminal dashboard for Headroom context-compression savings.
 
 Reads `~/.headroom/savings_events.jsonl` and redraws once a second: tokens saved, cost
 avoided, a bar chart per compression, and the latest events.
@@ -11,13 +10,13 @@ avoided, a bar chart per compression, and the latest events.
 From GitHub, no install step:
 
 ```bash
-uvx --from git+https://github.com/shipblueprint/headroom-charts headroom-charts
+uvx --from git+https://github.com/shipschematic/headroom-charts headroom-charts
 ```
 
 Or install it once and get a real binary on your `PATH`:
 
 ```bash
-uv tool install --from git+https://github.com/shipblueprint/headroom-charts headroom-charts
+uv tool install --from git+https://github.com/shipschematic/headroom-charts headroom-charts
 headroom-charts
 ```
 

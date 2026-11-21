@@ -19,9 +19,9 @@ classifiers = [
 dependencies = ["rich>=13.0"]
 
 [project.urls]
-Homepage = "https://github.com/shipblueprint/headroom-charts"
-Repository = "https://github.com/shipblueprint/headroom-charts"
-Issues = "https://github.com/shipblueprint/headroom-charts/issues"
+Homepage = "https://github.com/shipschematic/headroom-charts"
+Repository = "https://github.com/shipschematic/headroom-charts"
+Issues = "https://github.com/shipschematic/headroom-charts/issues"
 
 [project.scripts]
 headroom-charts = "headroom_charts.cli:main"
